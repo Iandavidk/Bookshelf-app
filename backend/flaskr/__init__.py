@@ -42,8 +42,8 @@ def create_app(test_config=None):
   #         Response body keys: 'success', 'books' and 'total_books'
   # TEST: When completed, the webpage will display books including title, author, and rating shown as stars
 
-@app.route('/books')
-def retrieve_books():
+  @app.route('/books')
+  def retrieve_books():
     selection = Book.query.order_by(Book.id).all()
     current_books = paginate_books(request, selection)
     
@@ -51,7 +51,7 @@ def retrieve_books():
         abort(404)
         
     return jsonify({
-        'success': 'True''
+        'success': 'True',
         'books': current_books,
         'total_books': len(Book.query.all())
     })
@@ -65,8 +65,8 @@ def retrieve_books():
   #         Response body keys: 'success'
   # TEST: When completed, you will be able to click on stars to update a book's rating and it will persist after refresh
 
-@app.route("/books/<int:book_id>", methods=["PATCH"])
-def update_book(book_id):
+  @app.route("/books/<int:book_id>", methods=["PATCH"])
+  def update_book(book_id):
 
         body = request.get_json()
 
@@ -92,8 +92,8 @@ def update_book(book_id):
 
   # TEST: When completed, you will be able to delete a single book by clicking on the trashcan.
     
-@app.route("/books/<int:book_id>", methods=["DELETE"])
-def delete_book(book_id):
+  @app.route("/books/<int:book_id>", methods=["DELETE"])
+  def delete_book(book_id):
         try:
             book = Book.query.filter(Book.id == book_id).one_or_none()
 
@@ -121,8 +121,8 @@ def delete_book(book_id):
   #        Response body keys: 'success', 'created'(id of created book), 'books' and 'total_books'
   # TEST: When completed, you will be able to a new book using the form. Try doing so from the last page of books. 
   #       Your new book should show up immediately after you submit it at the end of the page.
-@app.route("/books", methods=["POST"])
-cd def create_book():
+  @app.route("/books", methods=["POST"])
+  def create_book():
         body = request.get_json()
 
         new_title = body.get("title", None)
@@ -147,8 +147,35 @@ cd def create_book():
 
         except:
             abort(422)
-    
-  
+
+  @app.errorhandler(404)
+  def not_found(error):
+        return (
+            jsonify({"success": False, "error": 404, "message": "resource not found"}),
+            404,
+        )
+
+  @app.errorhandler(422)
+  def unprocessable(error):
+        return (
+            jsonify({"success": False, "error": 422, "message": "unprocessable"}),
+            422,
+        )
+
+  @app.errorhandler(400)
+  def bad_request(error):
+        return jsonify({"success": False, "error": 400, "message": "bad request"}), 400
+
+  @app.errorhandler(405)
+  def not_found(error):
+        return (
+            jsonify({"success": False, "error": 405, "message": "method not allowed"}),
+            405,
+        )
+
   return app
+
+    
+
 
     
